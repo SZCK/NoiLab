@@ -1,0 +1,23 @@
+{
+    "name": "xtlsoft/noilab",
+    "description": "Write and test NOI Programs online.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xtlsoft",
+            "email": "xtlsoft@126.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "workerman/workerman": "^3.5",
+        "xtlsoft/noilablib": "*@dev"
+    },
+    "repositories": [
+        {
+            "type": "path", 
+            "url": "packages/noilablib"
+        }
+    ]
+}

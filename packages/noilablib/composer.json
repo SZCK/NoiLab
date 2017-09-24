@@ -1,0 +1,15 @@
+{
+    "name": "xtlsoft/noilablib",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0",
+    "description": "Library.",
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "NoiLab\\": "./"
+        }
+    }
+}

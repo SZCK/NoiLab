@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>NoiLab - By xtlsoft</title>
+<meta charset="utf-8">
+<style type="text/css" media="screen">
+    #editor { 
+        position: absolute;
+        top: 40px;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        float: left;
+    }
+    #nav {
+        background-color: rgba(0, 0, 0, 0.7);
+        height: 40px;
+        position: absolute;
+        width: 100%;
+        top: 0px;
+        left: 0px;
+    }
+    .terminal {
+    float: right;
+    border: #000 solid 5px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-family: Consolas, "Microsoft Mono";
+    /*height: 500px;*/
+    font-size: 14px;
+    color: #f0f0f0;
+    background: #000;
+    z-index: 1000;
+  }
+
+  .terminal-cursor {
+    color: #000;
+    /*border: 2px solid green;*/
+    background: #f0f0f0;
+  }
+</style>
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="nav">
+    <div class="container" style="margin-top: 0px; padding-top: 0px;">
+        <h2 style="color: white; margin-top: 4px; padding-top: 0px; float: left;">NoiLab</h2>
+        <h2 style="color: white; margin-top: 2px; padding-top: 0px; float: right;">
+            <button onclick="editor.showSettingsMenu();" class="btn btn-primary">设置</button>&nbsp;
+            <button onclick="save();" class="btn btn-success">保存</button>&nbsp;
+            <button onclick="runProgram();" class="btn btn-warning">运行</button>
+        </h2>
+    </div>
+</div>
+<div id="editor"></div>
+<div id="term"></div>
+    
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="term.js" type="text/javascript" charset="utf-8"></script>
+<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+<script src="ace/ext-settings_menu.js"></script>
+<script id="scriptInitEditor">
+    
+    var codeObj = <?= $code; ?>;
+    
+    document.getElementById("editor").innerHTML = codeObj.code;
+    
+    ace.require("ace/ext/language_tools");
+    
+    window.editor = ace.edit("editor");
+    
+    ace.require('ace/ext/settings_menu').init(editor);
+    
+    editor.setTheme("ace/theme/tomorrow_night_eighties");
+    editor.getSession().setMode("ace/mode/c_cpp");
+    editor.getSession().setTabSize(4);
+    editor.getSession().setUseSoftTabs(true);
+    editor.getSession().setWrapLimitRange(5, 60);
+    document.getElementById('editor').style.fontSize='15px';
+    editor.getSession().setUseWrapMode(true);
+    editor.setHighlightActiveLine(true);
+    editor.setShowPrintMargin(true);
+    
+    editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true
+    });
+    
+    editor.commands.addCommands([{
+		name: "showSettingsMenu",
+		bindKey: {win: "Ctrl-q", mac: "Command-q"},
+		exec: function(editor) {
+			editor.showSettingsMenu();
+		},
+		readOnly: true
+	}]);
+	
+	editor.commands.addCommands([{
+		name: "save",
+		bindKey: {win: "Ctrl-s", mac: "Command-s"},
+		exec: function(editor) {
+			save();
+		},
+		readOnly: false
+	}]);
+	
+	editor.commands.addCommands([{
+		name: "run",
+		bindKey: {win: "Ctrl-r", mac: "Command-r"},
+		exec: function(editor) {
+			runProgram();
+		},
+		readOnly: true
+	}]);
+	
+	window.save = function(){
+	    $.post("save.php", {id: "<?= $id ?>", value: editor.getValue()}, function(rslt){
+	        term.write("+ Saved!\r\n");
+	    });
+	};
+	
+	window.runProgram = function(){
+	    
+	    term.write("===== Running =====\r\n");
+	    termsock.send("_COMPLIE_");
+	    
+	};
+	
+	if(window.WebSocket){
+        window.addEventListener('load', function() {
+            window.termsock = new WebSocket("<?= $GLOBALS['App']->config->ide->socketAddr; ?>");
+            
+            termsock.onopen = function() {
+                window.term = new Terminal({
+                    cols: 78,
+                    rows: 18,
+                    cursorBlink: true
+                });
+                term.open(document.getElementById("term"));
+                term.on('data', function(data) {
+                    termsock.send(data);
+                });
+                termsock.onmessage = function(data) {
+                    term.write(data.data);
+                };
+                termsock.onclose = function() {
+                    term.write("Connection closed.");
+                };
+                termsock.send("_ID_ <?= $id ?>");
+            };
+        }, false);
+    }
+    else {
+        alert("Browser do not support WebSocket.");
+    }
+	
+</script>
+</body>
+</html>

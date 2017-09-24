@@ -1,0 +1,23 @@
+{
+    
+    "server" : {
+        
+        "web" : "0.0.0.0:23480",
+        "socket" : "0.0.0.0:23481"
+        
+    },
+    
+    "complie" : {
+        
+        "path" : "/usr/bin/g++",
+        "temp" : "/opt/CppIde/temp/"
+        
+    },
+    
+    "ide" : {
+        
+        "socketAddr" : "ws://localhost:23481"
+        
+    }
+    
+}

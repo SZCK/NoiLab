@@ -59,7 +59,7 @@
             $proc = @proc_open($cmd, $descriptorspec, $pipes, null, $env);
             stream_set_blocking($pipes[0], 0);
             
-            $conn->send("+ Complie.Start\r\n");
+            $conn->send("+ Compile.Start\r\n");
             
             $stdout = new TcpConnection($pipes[1]);
             $stdout->onMessage = function($c, $m) use ($conn){
@@ -81,7 +81,7 @@
                 proc_terminate($proc);
                 $stat = proc_get_status($proc)['exitcode'];
                 if($stat == 0){
-                    $conn->send("OK!\r\n+ Complie.End\r\n");
+                    $conn->send("OK!\r\n+ Compile.End\r\n");
                     $proc = @proc_open($out, $descriptorspec, $pipes, null, $env);
                     $start = microtime();
                     stream_set_blocking($pipes[0], 0);
@@ -115,7 +115,7 @@
                     };
                     
                 }else{
-                    $conn->send("+ Complie.Error\r\n");
+                    $conn->send("+ Compile.Error\r\n");
                 }
                 
             };
